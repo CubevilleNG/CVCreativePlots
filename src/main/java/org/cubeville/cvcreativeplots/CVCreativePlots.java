@@ -10,6 +10,9 @@ import org.cubeville.commons.commands.CommandParser;
 
 import org.cubeville.cvtools.commands.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class CVCreativePlots extends JavaPlugin {
 
     private CommandParser commandParser;
@@ -22,6 +25,7 @@ public class CVCreativePlots extends JavaPlugin {
         commandParser = new CommandParser();
         ConfigurationSection plotdata = getConfig().getConfigurationSection("plotdata");
         if(plotdata == null) return;
+        Map<String, Integer> teleportYs = new HashMap<>();
         for(String worldname: plotdata.getKeys(false)) {
             ConfigurationSection p = plotdata.getConfigurationSection(worldname);
             commandParser.addCommand
@@ -34,7 +38,10 @@ public class CVCreativePlots extends JavaPlugin {
                   p.getInt("wgRegionMaxY"),
                   p.getString("templateRegionWorld"),
                   p.getString("templateRegion")));
+
+            teleportYs.put(worldname, p.getInt("teleportY"));
         }
+        commandParser.addCommand(new Home(teleportYs));
     }
 
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
