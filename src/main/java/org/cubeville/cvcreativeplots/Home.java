@@ -81,10 +81,12 @@ public class Home extends BaseCommand {
 			List<ProtectedRegion> ownedRegions = findRegionsWithOwner(world, playerParam);
 
 			// Throw error if there is more than 1 region owned by a player
-			if (ownedRegions.size() != 1) {
+			if (ownedRegions.size() > 1) {
 				throw new CommandExecutionException(String.format("Player %s is owner of %d regions, expected 1", baseParameters.get(0), ownedRegions.size()));
 			}
-
+                        else if (ownedRegions.size() == 0) {
+                            throw new CommandExecutionException("No region found");
+                        }
 			ProtectedRegion plot = ownedRegions.get(0);
 			this.tpPlayerToPlot(p, plot);
 			return new CommandResponse("&bTeleported to the plot of " + baseParameters.get(0));
@@ -105,6 +107,6 @@ public class Home extends BaseCommand {
 		}
 
 		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cvcreativeplots createplot " + world.getName() + " " + p.getName());
-		return new CommandResponse("&bRan create plot command");
+		return new CommandResponse("&bA plot has been created for you! Please read over the rules at the creative world spawn if you have not already. Use &a/home&b whilst on the creative server to get to your plot, &a/help creative&b lists more commands. Have fun!");
 	}
 }

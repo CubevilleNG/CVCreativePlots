@@ -34,16 +34,7 @@ import org.cubeville.commons.commands.CommandParameterOnlinePlayer;
 import org.cubeville.commons.commands.CommandResponse;
 
 public class CreatePlot extends BaseCommand {
-    // private final String CREATIVE_WORLD_NAME = "creative";
-    // private final World CREATIVE_WORLD = Bukkit.getServer().getWorld(CREATIVE_WORLD_NAME);
-
-    // private final int REGION_SIZE = 300; // Size of the square region
-    // private final int PLOT_DISTANCE = 9; // Distance between Plots
     private final int MAX_PLOTS = 1000;
-    // private final int PASTE_Y = 63;
-    // private final int WG_REGION_MIN_Y = 5;
-    // private final int WG_REGION_MAX_Y = 254;
-    // private final String TEMPLATE_REGION = "plottemplate";
 
     String worldname;
     int regionSize;
@@ -53,8 +44,9 @@ public class CreatePlot extends BaseCommand {
     int wgRegionMaxY;
     String templateRegionWorld;
     String templateRegion;
+    boolean syncCopy;
     
-    public CreatePlot(String worldname, int regionSize, int plotDistance, int pasteY, int wgRegionMinY, int wgRegionMaxY, String templateRegionWorld, String templateRegion) {
+    public CreatePlot(String worldname, int regionSize, int plotDistance, int pasteY, int wgRegionMinY, int wgRegionMaxY, String templateRegionWorld, String templateRegion, boolean syncCopy) {
         super("createplot " + worldname);
         addBaseParameter(new CommandParameterOnlinePlayer());
         setPermission("cvcreativeplots.createplot");
@@ -66,6 +58,7 @@ public class CreatePlot extends BaseCommand {
         this.wgRegionMaxY = wgRegionMaxY;
         this.templateRegionWorld = templateRegionWorld;
         this.templateRegion = templateRegion;
+        this.syncCopy = syncCopy;
     }
 
     private void copyPlotToLocation(BlockVector3 loc) {
@@ -75,7 +68,9 @@ public class CreatePlot extends BaseCommand {
                                    worldname, // target world
                                    loc.getX(), pasteY, loc.getZ() // (x, y, z)
                                    );
+        if(syncCopy) cmd += " sync";
         System.out.println("Running cvblocks command: " + cmd);
+        if(syncCopy) { Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd); }
         Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
     }
 

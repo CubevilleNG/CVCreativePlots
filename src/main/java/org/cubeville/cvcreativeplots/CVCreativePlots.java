@@ -37,7 +37,8 @@ public class CVCreativePlots extends JavaPlugin {
                   p.getInt("wgRegionMinY"),
                   p.getInt("wgRegionMaxY"),
                   p.getString("templateRegionWorld"),
-                  p.getString("templateRegion")));
+                  p.getString("templateRegion"),
+                  p.getBoolean("syncCopy")));
 
             teleportYs.put(worldname, p.getInt("teleportY"));
         }
