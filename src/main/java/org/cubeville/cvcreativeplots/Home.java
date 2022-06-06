@@ -54,7 +54,7 @@ public class Home extends BaseCommand {
 			});
 		} else if (player instanceof OfflinePlayer) {
 			allRegions.getRegions().forEach((id, region) -> {
-				if (region.isOwner(plugin.wrapOfflinePlayer((OfflinePlayer) player))) {
+				if (region.isOwner(plugin.wrapOfflinePlayer((OfflinePlayer) player)) && region.getParent() == null) {
 					ownedRegions.add(region);
 				}
 			});
