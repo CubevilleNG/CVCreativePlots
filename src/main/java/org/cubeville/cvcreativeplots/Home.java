@@ -48,7 +48,7 @@ public class Home extends BaseCommand {
 
 		if (player instanceof Player) {
 			allRegions.getRegions().forEach((id, region) -> {
-				if (region.isOwner(plugin.wrapPlayer((Player) player))) {
+				if (region.isOwner(plugin.wrapPlayer((Player) player)) && region.getParent() == null) {
 					ownedRegions.add(region);
 				}
 			});
