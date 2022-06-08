@@ -46,7 +46,8 @@ public class Home extends BaseCommand {
 		allRegions.getRegions().forEach((id, region) -> {
 			if(region.getId().equalsIgnoreCase(player) && region.getParent() == null) {
 				for(UUID uuid : region.getOwners().getUniqueIds()) {
-					if(Bukkit.getOfflinePlayer(uuid).getName().equalsIgnoreCase(player)) {
+					String oName = Bukkit.getOfflinePlayer(uuid).getName();
+					if(oName != null && oName.equalsIgnoreCase(player)) {
 						ownedRegions.add(region);
 						break;
 					}

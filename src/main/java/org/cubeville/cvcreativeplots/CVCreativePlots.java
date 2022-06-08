@@ -61,6 +61,7 @@ public class CVCreativePlots extends JavaPlugin implements Listener {
         }
         commandParser.addCommand(new Home(teleportYs));
         commandParser.addCommand(new Subzone());
+        commandParser.addCommand(new AdminRename(this));
     }
 
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -80,23 +81,24 @@ public class CVCreativePlots extends JavaPlugin implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) throws ProtectedRegion.CircularInheritanceException {
         Player player = event.getPlayer();
+        if(!player.getWorld().getName().equalsIgnoreCase("creative")) return;
         BukkitPlayer bPlayer = BukkitAdapter.adapt(player);
         RegionManager manager = WorldGuard.getInstance().getPlatform().getRegionContainer().get(bPlayer.getWorld());
         List<ProtectedRegion> ownedRegions = new ArrayList<>();
         assert manager != null;
         manager.getRegions().forEach((id, region) -> {
-            if (region.getOwners().contains(bPlayer.getUniqueId()) && region.getParent() == null && !region.getId().equalsIgnoreCase("__global__")) {
+            if (region.getOwners().contains(bPlayer.getUniqueId()) && region.getParent() == null && !region.getId().equalsIgnoreCase("__global__") && !region.getId().equalsIgnoreCase("creativespawn")) {
                 ownedRegions.add(region);
             }
         });
         if(ownedRegions.size() == 1) {
             if(!ownedRegions.get(0).getId().equalsIgnoreCase(bPlayer.getName())) {
-                updatePlotName(manager, ownedRegions.get(0), player);
+                updatePlotName(manager, ownedRegions.get(0), player.getName().toLowerCase());
             }
         }
     }
 
-    public void updatePlotName(RegionManager manager, ProtectedRegion oldRegion, Player player) throws ProtectedRegion.CircularInheritanceException {
+    public void updatePlotName(RegionManager manager, ProtectedRegion oldRegion, String pName) throws ProtectedRegion.CircularInheritanceException {
         BlockVector3 min = oldRegion.getMinimumPoint();
         BlockVector3 max = oldRegion.getMaximumPoint();
         DefaultDomain owners = oldRegion.getOwners();
@@ -109,7 +111,7 @@ public class CVCreativePlots extends JavaPlugin implements Listener {
             }
         }
 
-        ProtectedRegion newRegion = new ProtectedCuboidRegion(player.getName().toLowerCase(), min, max);
+        ProtectedRegion newRegion = new ProtectedCuboidRegion(pName, min, max);
         newRegion.setOwners(owners);
         newRegion.setMembers(members);
         newRegion.setFlags(flags);
