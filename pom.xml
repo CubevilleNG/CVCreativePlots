@@ -57,7 +57,7 @@
     </repository>
     <repository>
       <id>sk89q-snapshots</id>
-      <url>http://maven.sk89q.com/artifactory/repo</url>
+      <url>https://maven.sk89q.com/artifactory/repo</url>
       <releases>
         <enabled>true</enabled>
       </releases>

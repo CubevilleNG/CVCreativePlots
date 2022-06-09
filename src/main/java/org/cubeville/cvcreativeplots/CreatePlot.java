@@ -34,7 +34,7 @@ import org.cubeville.commons.commands.CommandParameterOnlinePlayer;
 import org.cubeville.commons.commands.CommandResponse;
 
 public class CreatePlot extends BaseCommand {
-    private final int MAX_PLOTS = 1000;
+    private final int MAX_PLOTS = 5000;
 
     String worldname;
     int regionSize;
