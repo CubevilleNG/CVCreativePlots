@@ -15,10 +15,7 @@ import org.cubeville.commons.commands.CommandExecutionException;
 import org.cubeville.commons.commands.CommandParameterString;
 import org.cubeville.commons.commands.CommandResponse;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class Home extends BaseCommand {
 
@@ -40,27 +37,23 @@ public class Home extends BaseCommand {
 	}
 
 	// the reason we split this up is if a person wants to
-	public List<ProtectedRegion> findRegionsWithOwner(World world, Object player) throws CommandExecutionException {
+	public List<ProtectedRegion> findRegionsWithOwner(World world, String player) throws CommandExecutionException {
 		RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
 		RegionManager allRegions = container.get(BukkitAdapter.adapt(world));
 		List<ProtectedRegion> ownedRegions = new ArrayList<>();
 		WorldGuardPlugin plugin = WorldGuardPlugin.inst();
 
-		if (player instanceof Player) {
-			allRegions.getRegions().forEach((id, region) -> {
-				if (region.isOwner(plugin.wrapPlayer((Player) player))) {
-					ownedRegions.add(region);
+		allRegions.getRegions().forEach((id, region) -> {
+			if(region.getId().equalsIgnoreCase(player) && region.getParent() == null) {
+				for(UUID uuid : region.getOwners().getUniqueIds()) {
+					String oName = Bukkit.getOfflinePlayer(uuid).getName();
+					if(oName != null && oName.equalsIgnoreCase(player)) {
+						ownedRegions.add(region);
+						break;
+					}
 				}
-			});
-		} else if (player instanceof OfflinePlayer) {
-			allRegions.getRegions().forEach((id, region) -> {
-				if (region.isOwner(plugin.wrapOfflinePlayer((OfflinePlayer) player))) {
-					ownedRegions.add(region);
-				}
-			});
-		} else {
-			throw new CommandExecutionException("Something went wrong!");
-		}
+			}
+		});
 
 		return ownedRegions;
 	}
@@ -76,9 +69,7 @@ public class Home extends BaseCommand {
 
 		// If player is specified in the command
 		if (baseParameters.size() >= 1) {
-			OfflinePlayer playerParam = p.getServer().getOfflinePlayer((String) baseParameters.get(0));
-
-			List<ProtectedRegion> ownedRegions = findRegionsWithOwner(world, playerParam);
+			List<ProtectedRegion> ownedRegions = findRegionsWithOwner(world, (String) baseParameters.get(0));
 
 			// Throw error if there is more than 1 region owned by a player
 			if (ownedRegions.size() > 1) {
@@ -93,7 +84,7 @@ public class Home extends BaseCommand {
 
 		}
 
-		List<ProtectedRegion> ownedRegions = findRegionsWithOwner(world, p);
+		List<ProtectedRegion> ownedRegions = findRegionsWithOwner(world, p.getName());
 
 		// Throw error if there is more than 1 region owned by a player
 		if (ownedRegions.size() > 1) {
