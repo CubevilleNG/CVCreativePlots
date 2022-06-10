@@ -71,7 +71,7 @@ public class AdminRename extends BaseCommand {
                 } else {
                     currentName = null;
                 }
-                if(currentName != null && !region.getId().equalsIgnoreCase(currentName) && !region.getId().equalsIgnoreCase("__global__") && region.getId().equalsIgnoreCase("creativespawn")) {
+                if(currentName != null && !region.getId().equalsIgnoreCase(currentName) && !region.getId().equalsIgnoreCase("__global__") && !region.getId().equalsIgnoreCase("creativespawn")) {
                     updateList.put(region, currentName);
                 }
             });
