@@ -42,7 +42,7 @@ public class Subzone extends BaseCommand {
         Region playerSelection;
 
         if(parent == null) return new CommandResponse(ChatColor.RED + "Unable to find region: " + baseParameters.get(0));
-        if(child != null) return new CommandResponse(ChatColor.RED + "The subzone: " + baseParameters.get(0) + " already exists! Try a different name!");
+        if(child != null) return new CommandResponse(ChatColor.RED + "The subzone: " + baseParameters.get(1) + " already exists! Try a different name!");
         if(!parent.getOwners().contains(player.getUniqueId())) return new CommandResponse(ChatColor.RED + "You are not owner of the region: " + baseParameters.get(0));
         try {
             playerSelection = localSession.getSelection(bPlayer.getWorld());
