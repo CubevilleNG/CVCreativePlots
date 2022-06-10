@@ -30,9 +30,9 @@ public class Home extends BaseCommand {
 	}
 
 	public void tpPlayerToPlot(Player player, ProtectedRegion plot) {
-		BlockVector3 corner = plot.getMinimumPoint();
+		BlockVector3 corner = plot.getMaximumPoint();
 		World world = player.getWorld();
-		Location tpLocation = new Location(world, corner.getX() - 1, this.teleportYs.get(world.getName()), corner.getZ() - 1, -45, 0);
+		Location tpLocation = new Location(world, corner.getX() - 1, this.teleportYs.get(world.getName()), corner.getZ() - 1, 135, 0);
 		player.teleport(tpLocation);
 	}
 
