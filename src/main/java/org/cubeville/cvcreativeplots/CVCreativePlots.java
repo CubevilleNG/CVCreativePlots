@@ -12,6 +12,7 @@ import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
@@ -19,6 +20,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -32,8 +34,10 @@ import java.util.*;
 public class CVCreativePlots extends JavaPlugin implements Listener {
 
     private CommandParser commandParser;
+    private List<String> worldNames;
 
     public void onEnable() {
+        worldNames = new ArrayList<>();
         updateConfig();
         Bukkit.getPluginManager().registerEvents(this, this);
     }
@@ -44,6 +48,7 @@ public class CVCreativePlots extends JavaPlugin implements Listener {
         if(plotdata == null) return;
         Map<String, Integer> teleportYs = new HashMap<>();
         for(String worldname: plotdata.getKeys(false)) {
+            worldNames.add(worldname.toLowerCase());
             ConfigurationSection p = plotdata.getConfigurationSection(worldname);
             commandParser.addCommand
                 (new CreatePlot
@@ -81,19 +86,24 @@ public class CVCreativePlots extends JavaPlugin implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) throws ProtectedRegion.CircularInheritanceException {
         Player player = event.getPlayer();
-        if(!player.getWorld().getName().equalsIgnoreCase("creative")) return;
+        if(!worldNames.contains(player.getWorld().getName().toLowerCase())) return;
         BukkitPlayer bPlayer = BukkitAdapter.adapt(player);
-        RegionManager manager = WorldGuard.getInstance().getPlatform().getRegionContainer().get(bPlayer.getWorld());
-        List<ProtectedRegion> ownedRegions = new ArrayList<>();
-        assert manager != null;
-        manager.getRegions().forEach((id, region) -> {
-            if (region.getOwners().contains(bPlayer.getUniqueId()) && region.getParent() == null && !region.getId().equalsIgnoreCase("__global__") && !region.getId().equalsIgnoreCase("creativespawn")) {
-                ownedRegions.add(region);
-            }
-        });
-        if(ownedRegions.size() == 1) {
-            if(!ownedRegions.get(0).getId().equalsIgnoreCase(bPlayer.getName())) {
-                updatePlotName(manager, ownedRegions.get(0), player.getName().toLowerCase());
+        for(String worldName : worldNames) {
+            World world = Bukkit.getWorld(worldName);
+            if(world != null) {
+                RegionManager manager = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(world));
+                List<ProtectedRegion> ownedRegions = new ArrayList<>();
+                assert manager != null;
+                manager.getRegions().forEach((id, region) -> {
+                    if (region.getOwners().contains(bPlayer.getUniqueId()) && region.getParent() == null && !region.getId().equalsIgnoreCase("__global__") && !region.getId().equalsIgnoreCase("creativespawn")) {
+                        ownedRegions.add(region);
+                    }
+                });
+                if(ownedRegions.size() == 1) {
+                    if(!ownedRegions.get(0).getId().equalsIgnoreCase(bPlayer.getName())) {
+                        updatePlotName(manager, ownedRegions.get(0), player.getName().toLowerCase());
+                    }
+                }
             }
         }
     }
