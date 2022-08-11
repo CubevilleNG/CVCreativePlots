@@ -58,6 +58,18 @@ public class Home extends BaseCommand {
 		return ownedRegions;
 	}
 
+	public boolean doesIdenticalRegionNameExist(World world, String name) {
+		RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
+		RegionManager allRegions = container.get(BukkitAdapter.adapt(world));
+
+		for(ProtectedRegion region : allRegions.getRegions().values()) {
+			if(region.getId().equalsIgnoreCase(name)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	@Override
 	public CommandResponse execute(CommandSender sender, Set<String> flags, Map<String, Object> parameters, List<Object> baseParameters) throws CommandExecutionException {
 		if (!(sender instanceof Player)) {
@@ -95,6 +107,10 @@ public class Home extends BaseCommand {
 			ProtectedRegion plot = ownedRegions.get(0);
 			this.tpPlayerToPlot(p, plot);
 			return new CommandResponse("&bTeleported to your plot");
+		}
+
+		if(doesIdenticalRegionNameExist(world, p.getName())) {
+			throw new CommandExecutionException("A region named " + p.getName() + " already exists but is not a plot!");
 		}
 
 		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cvcreativeplots createplot " + world.getName() + " " + p.getName());
