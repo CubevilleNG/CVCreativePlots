@@ -30,7 +30,7 @@ public class Subzone extends BaseCommand {
     }
 
     @Override
-    public CommandResponse execute(CommandSender sender, Set<String> flags, Map<String, Object> parameters, List<Object> baseParameters) throws CommandExecutionException {
+    public CommandResponse execute(CommandSender sender, Set<String> flags, Map<String, Object> parameters, List<Object> baseParameters) {
 
         Player player = (Player) sender;
         BukkitPlayer bPlayer = BukkitAdapter.adapt(player);
