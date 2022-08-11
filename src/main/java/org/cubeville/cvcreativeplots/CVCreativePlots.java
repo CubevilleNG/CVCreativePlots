@@ -28,7 +28,8 @@ import java.util.*;
 
 public class CVCreativePlots extends JavaPlugin implements Listener {
 
-    private CommandParser commandParser;
+    private CommandParser commandParserHome;
+    private CommandParser commandParserSubzone;
     private HashMap<String, HashMap<String, Object>> config;
 
     public void onEnable() {
@@ -38,7 +39,8 @@ public class CVCreativePlots extends JavaPlugin implements Listener {
     }
 
     public void updateConfig() {
-        commandParser = new CommandParser();
+        commandParserHome = new CommandParser();
+        commandParserSubzone = new CommandParser();
         ConfigurationSection plotdata = getConfig().getConfigurationSection("plotdata");
         if(plotdata == null) return;
         for(String worldname: plotdata.getKeys(false)) {
@@ -55,8 +57,8 @@ public class CVCreativePlots extends JavaPlugin implements Listener {
             worldConfig.put("teleportY", p.getInt("teleportY"));
             config.put(worldname.toLowerCase(), worldConfig);
         }
-        commandParser.addCommand(new Home(config));
-        commandParser.addCommand(new Subzone());
+        commandParserHome.addCommand(new Home(config));
+        commandParserSubzone.addCommand(new Subzone());
     }
 
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -68,7 +70,9 @@ public class CVCreativePlots extends JavaPlugin implements Listener {
             }
             return false;
         } else if(command.getName().equalsIgnoreCase("home")) {
-            return commandParser.execute(sender, args);
+            return commandParserHome.execute(sender, args);
+        } else if(command.getName().equalsIgnoreCase("subzone")) {
+            return commandParserSubzone.execute(sender, args);
         }
         return false;
     }

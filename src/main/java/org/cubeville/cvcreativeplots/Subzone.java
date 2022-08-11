@@ -23,7 +23,7 @@ import java.util.Set;
 public class Subzone extends BaseCommand {
 
     public Subzone() {
-        super("subzone");
+        super("");
         addBaseParameter(new CommandParameterString());
         addBaseParameter(new CommandParameterString(CommandParameterString.NO_SPECIAL_CHARACTERS));
         setPermission("cvcreativeplots.subzone");
