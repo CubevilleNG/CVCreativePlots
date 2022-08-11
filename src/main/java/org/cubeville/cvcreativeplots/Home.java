@@ -92,9 +92,7 @@ public class Home extends BaseCommand {
 		int minY = (int) config.get(world.getName().toLowerCase()).get("wgRegionMinY");
 		int maxY = (int) config.get(world.getName().toLowerCase()).get("wgRegionMaxY");
 		int regionSize = (int) config.get(world.getName().toLowerCase()).get("regionSize");
-		int volume = ((maxY - minY) * regionSize * regionSize);
-		System.out.println(region.volume());
-		System.out.println(volume);
+		int volume = ((maxY - minY + 1) * regionSize * regionSize);
 		return region.volume() == volume;
 	}
 
