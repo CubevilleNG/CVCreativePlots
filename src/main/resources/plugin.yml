@@ -6,6 +6,10 @@ api-version: 1.16
 depend: [CVTools,WorldEdit,WorldGuard]
 
 commands:
-  cvcreativeplots:
+  home:
     permission: cvcreativeplots.createplot
+  subzone:
+    permission: cvcreativeplots.createplot
+  cvcreativeplots:
+    permission: cvcreativeplots.admin
 
