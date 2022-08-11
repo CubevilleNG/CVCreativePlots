@@ -51,7 +51,7 @@ public class Home extends BaseCommand {
 		// If player is specified in the command
 		if (baseParameters.size() >= 1) {
 			ProtectedRegion region = getRegionByName(world, (String) baseParameters.get(0));
-			if(region == null || region.getParent() != null || isRegionValidPlot(world, region)) {
+			if(region == null || region.getParent() != null || !isRegionValidPlot(world, region)) {
 				throw new CommandExecutionException(baseParameters.get(0) + " does not have a plot!");
 			}
 			tpPlayerToPlot(p, region);
@@ -62,7 +62,7 @@ public class Home extends BaseCommand {
 		if(region == null) {
 			return createPlot(world, p);
 		} else {
-			if(isRegionValidPlot(world, region)) {
+			if(!isRegionValidPlot(world, region)) {
 				throw new CommandExecutionException("You already have a plot created and it is configured wrong! Contact an administrator!");
 			}
 			tpPlayerToPlot(p, region);
@@ -93,6 +93,8 @@ public class Home extends BaseCommand {
 		int maxY = (int) config.get(world.getName().toLowerCase()).get("wgRegionMaxY");
 		int regionSize = (int) config.get(world.getName().toLowerCase()).get("regionSize");
 		int volume = ((maxY - minY) * regionSize * regionSize);
+		System.out.println(region.volume());
+		System.out.println(volume);
 		return region.volume() == volume;
 	}
 
