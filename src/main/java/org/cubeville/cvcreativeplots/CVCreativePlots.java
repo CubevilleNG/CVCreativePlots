@@ -4,14 +4,12 @@ import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.bukkit.BukkitPlayer;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldguard.WorldGuard;
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.domains.DefaultDomain;
 import com.sk89q.worldguard.protection.flags.Flag;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -20,65 +18,61 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import org.cubeville.commons.commands.CommandParser;
 
-import org.cubeville.cvtools.commands.*;
 
 import java.util.*;
 
 public class CVCreativePlots extends JavaPlugin implements Listener {
 
-    private CommandParser commandParser;
-    private List<String> worldNames;
+    private CommandParser commandParserHome;
+    private CommandParser commandParserSubzone;
+    private HashMap<String, HashMap<String, Object>> config;
 
     public void onEnable() {
-        worldNames = new ArrayList<>();
+        config = new HashMap<>();
         updateConfig();
         Bukkit.getPluginManager().registerEvents(this, this);
     }
 
     public void updateConfig() {
-        commandParser = new CommandParser();
+        commandParserHome = new CommandParser();
+        commandParserSubzone = new CommandParser();
         ConfigurationSection plotdata = getConfig().getConfigurationSection("plotdata");
         if(plotdata == null) return;
-        Map<String, Integer> teleportYs = new HashMap<>();
         for(String worldname: plotdata.getKeys(false)) {
-            worldNames.add(worldname.toLowerCase());
+            HashMap<String, Object> worldConfig = new HashMap<>();
             ConfigurationSection p = plotdata.getConfigurationSection(worldname);
-            commandParser.addCommand
-                (new CreatePlot
-                 (worldname,
-                  p.getInt("regionSize"),
-                  p.getInt("plotDistance"),
-                  p.getInt("pasteY"),
-                  p.getInt("wgRegionMinY"),
-                  p.getInt("wgRegionMaxY"),
-                  p.getString("templateRegionWorld"),
-                  p.getString("templateRegion"),
-                  p.getBoolean("syncCopy")));
-
-            teleportYs.put(worldname, p.getInt("teleportY"));
+            worldConfig.put("regionSize", p.getInt("regionSize"));
+            worldConfig.put("plotDistance", p.getInt("plotDistance"));
+            worldConfig.put("pasteY", p.getInt("pasteY"));
+            worldConfig.put("wgRegionMinY", p.getInt("wgRegionMinY"));
+            worldConfig.put("wgRegionMaxY", p.getInt("wgRegionMaxY"));
+            worldConfig.put("templateRegionWorld", p.getString("templateRegionWorld"));
+            worldConfig.put("templateRegion", p.getString("templateRegion"));
+            worldConfig.put("syncCopy", p.getBoolean("syncCopy"));
+            worldConfig.put("teleportY", p.getInt("teleportY"));
+            config.put(worldname.toLowerCase(), worldConfig);
         }
-        commandParser.addCommand(new Home(teleportYs));
-        commandParser.addCommand(new Subzone());
-        commandParser.addCommand(new AdminRename(this));
+        commandParserHome.addCommand(new Home(config));
+        commandParserSubzone.addCommand(new Subzone());
     }
 
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if(command.getName().equals("cvcreativeplots")) {
+        if(command.getName().equalsIgnoreCase("cvcreativeplots")) {
             if(args.length == 1 && args[0].equals("reload")) {
                 updateConfig();
                 sender.sendMessage("§aConfiguration reloaded.");
                 return true;
             }
-            else {
-                return commandParser.execute(sender, args);
-            }
+            return false;
+        } else if(command.getName().equalsIgnoreCase("home")) {
+            return commandParserHome.execute(sender, args);
+        } else if(command.getName().equalsIgnoreCase("subzone")) {
+            return commandParserSubzone.execute(sender, args);
         }
         return false;
     }
@@ -86,9 +80,9 @@ public class CVCreativePlots extends JavaPlugin implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) throws ProtectedRegion.CircularInheritanceException {
         Player player = event.getPlayer();
-        if(!worldNames.contains(player.getWorld().getName().toLowerCase())) return;
+        if(!config.containsKey(player.getWorld().getName().toLowerCase())) return;
         BukkitPlayer bPlayer = BukkitAdapter.adapt(player);
-        for(String worldName : worldNames) {
+        for(String worldName : config.keySet()) {
             World world = Bukkit.getWorld(worldName);
             if(world != null) {
                 RegionManager manager = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(world));

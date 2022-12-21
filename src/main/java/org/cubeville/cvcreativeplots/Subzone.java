@@ -23,14 +23,14 @@ import java.util.Set;
 public class Subzone extends BaseCommand {
 
     public Subzone() {
-        super("subzone");
+        super("");
         addBaseParameter(new CommandParameterString());
         addBaseParameter(new CommandParameterString(CommandParameterString.NO_SPECIAL_CHARACTERS));
         setPermission("cvcreativeplots.subzone");
     }
 
     @Override
-    public CommandResponse execute(CommandSender sender, Set<String> flags, Map<String, Object> parameters, List<Object> baseParameters) throws CommandExecutionException {
+    public CommandResponse execute(CommandSender sender, Set<String> flags, Map<String, Object> parameters, List<Object> baseParameters) {
 
         Player player = (Player) sender;
         BukkitPlayer bPlayer = BukkitAdapter.adapt(player);
