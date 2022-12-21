@@ -3,6 +3,7 @@ package org.cubeville.cvcreativeplots;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.bukkit.BukkitPlayer;
 import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.registry.state.BooleanProperty;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.domains.DefaultDomain;
 import com.sk89q.worldguard.protection.flags.Flag;
@@ -31,6 +32,7 @@ public class CVCreativePlots extends JavaPlugin implements Listener {
     private CommandParser commandParserHome;
     private CommandParser commandParserSubzone;
     private HashMap<String, HashMap<String, Object>> config;
+    private Home homeCommand;
 
     public void onEnable() {
         config = new HashMap<>();
@@ -55,17 +57,40 @@ public class CVCreativePlots extends JavaPlugin implements Listener {
             worldConfig.put("templateRegion", p.getString("templateRegion"));
             worldConfig.put("syncCopy", p.getBoolean("syncCopy"));
             worldConfig.put("teleportY", p.getInt("teleportY"));
+            worldConfig.put("disablePlotCreation", p.getBoolean("disablePlotCreation"));
             config.put(worldname.toLowerCase(), worldConfig);
         }
-        commandParserHome.addCommand(new Home(config));
+        homeCommand = new Home(config);
+        commandParserHome.addCommand(homeCommand);
         commandParserSubzone.addCommand(new Subzone());
     }
 
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if(command.getName().equalsIgnoreCase("cvcreativeplots")) {
-            if(args.length == 1 && args[0].equals("reload")) {
+            if(args.length == 1 && args[0].equalsIgnoreCase("reload")) {
                 updateConfig();
                 sender.sendMessage("§aConfiguration reloaded.");
+                return true;
+            } else if(args.length > 0 && args[0].equalsIgnoreCase("disableplotcreation")) {
+                if(!(sender instanceof Player)) {
+                    sender.sendMessage("You must be a player to run this command!");
+                    return true;
+                }
+                if(args.length != 2 || (!args[1].equalsIgnoreCase("true") && !args[1].equalsIgnoreCase("false"))) {
+                    sender.sendMessage("Invalid command! Try /cvcreativeplotsdisableplotcreation <true | false>");
+                    return true;
+                }
+                ConfigurationSection plotdata = getConfig().getConfigurationSection("plotdata");
+                if(plotdata == null) return true;
+                ConfigurationSection p = plotdata.getConfigurationSection(((Player)sender).getWorld().getName().toLowerCase());
+                p.set("disablePlotCreation", Boolean.valueOf(args[1]));
+                saveConfig();
+                HashMap<String, HashMap<String, Object>> config = homeCommand.getConfig();
+                HashMap<String, Object> worldConfig = config.get(((Player)sender).getWorld().getName());
+                worldConfig.put("disablePlotCreation", Boolean.valueOf(args[1]));
+                config.put(((Player)sender).getWorld().getName(), worldConfig);
+                homeCommand.setConfig(config);
+                sender.sendMessage("DisablePlotCreation set to " + args[1] + " in world: " + ((Player)sender).getWorld().getName());
                 return true;
             }
             return false;

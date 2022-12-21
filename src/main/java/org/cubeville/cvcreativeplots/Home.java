@@ -23,13 +23,21 @@ import java.util.*;
 public class Home extends BaseCommand {
 
 	private final int MAX_PLOTS = 5000;
-	private final HashMap<String, HashMap<String, Object>> config;
+	public HashMap<String, HashMap<String, Object>> config;
 
 	public Home(HashMap<String, HashMap<String, Object>> config) {
 		super("");
 		// parameter is string instead of online player because you can tp to plot of offline player
 		addOptionalBaseParameter(new CommandParameterString());
 		setPermission("cvcreativeplots.home");
+		this.config = config;
+	}
+
+	public HashMap<String, HashMap<String, Object>> getConfig() {
+		return config;
+	}
+
+	public void setConfig(HashMap<String, HashMap<String, Object>> config) {
 		this.config = config;
 	}
 
@@ -95,6 +103,10 @@ public class Home extends BaseCommand {
 	}
 
 	public CommandResponse createPlot(World world, Player p) throws CommandExecutionException {
+		if((Boolean) config.get(world.getName().toLowerCase()).get("disablePlotCreation")) {
+			return new CommandResponse("&c" + p.getName() + " does not have a plot, and plot creation is currently disabled in this world!" +
+					" If you changed your name recently, try using your old name.");
+		}
 		Bukkit.getConsoleSender().sendMessage("&c&lCreating Plot...");
 		BlockVector3 plotLocation = findPlotLocation(world);
 		copyPlotToLocation(world, plotLocation);
