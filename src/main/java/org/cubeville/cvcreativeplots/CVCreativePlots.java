@@ -105,7 +105,7 @@ public class CVCreativePlots extends JavaPlugin implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) throws ProtectedRegion.CircularInheritanceException {
         Player player = event.getPlayer();
-        if(!config.containsKey(player.getWorld().getName().toLowerCase())) return;
+        //if(!config.containsKey(player.getWorld().getName().toLowerCase())) return; //TODO remove?
         BukkitPlayer bPlayer = BukkitAdapter.adapt(player);
         for(String worldName : config.keySet()) {
             World world = Bukkit.getWorld(worldName);
